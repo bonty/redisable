@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+require 'redis/distributed'
+
 module Redisable
   module Connection
     def self.conn(server)
