@@ -6,8 +6,16 @@ module Redisable
       @pool[server] ||=
         begin
           conf = Redisable::Config.conf(server)
-          redis = ::Redis.new(conf)
-          raise "Redis server[#{conf["host"]}:#{conf["port"]}] is down!" unless reachable?(redis)
+          redis = nil
+          if conf.is_a?(Array)
+            redis = ::Redis::Distributed.new(conf)
+            redis.nodes.each do |node|
+              raise "Redis server[#{node.id}] is down!" unless reachable?(node)
+            end
+          else
+            redis = ::Redis.new(conf)
+            raise "Redis server[#{redis.id}] is down!" unless reachable?(redis)
+          end
           redis
         end
     end
